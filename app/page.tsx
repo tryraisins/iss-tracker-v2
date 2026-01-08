@@ -31,7 +31,7 @@ export default function Home() {
             textAlign: 'center'
           }}>
           Watch humanity&apos;s orbital outpost circle the Earth at 28,000 km/h.
-          Live telemetry, crew roster, and stunning 3D visualization.
+          Live telemetry, crew roster, and more.
         </p>
 
         <div className="anim-fade-up delay-3 flex flex-wrap justify-center gap-4">
