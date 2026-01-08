@@ -6,11 +6,20 @@ interface Star {
   x: number;
   y: number;
   size: number;
-  speed: number;
   brightness: number;
   twinkleSpeed: number;
-  originalBrightness: number;
-  twinkleDirection: number;
+  twinkleDir: number;
+  color: string;
+}
+
+interface ShootingStar {
+  x: number;
+  y: number;
+  length: number;
+  speed: number;
+  angle: number;
+  opacity: number;
+  active: boolean;
 }
 
 export default function StarryBackground() {
@@ -23,189 +32,166 @@ export default function StarryBackground() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // Set canvas size
-    const resizeCanvas = () => {
+    const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
 
-    resizeCanvas();
-    window.addEventListener('resize', resizeCanvas);
+    resize();
+    window.addEventListener('resize', resize);
 
-    // Create stars with enhanced twinkling properties
+    // Star colors - warm and cool mix
+    const starColors = [
+      '#ffffff',
+      '#ffe4c4',
+      '#c9e4ff',
+      '#ffd4e5',
+      '#d4ffe5',
+      '#00e5c7',
+      '#ff8c5a',
+    ];
+
+    // Create stars with varied properties
     const stars: Star[] = [];
-    const starCount = 300; // Increased star count for better effect
+    const starCount = 350;
 
     for (let i = 0; i < starCount; i++) {
-      const originalBrightness = Math.random() * 0.7 + 0.3;
       stars.push({
         x: Math.random() * canvas.width,
         y: Math.random() * canvas.height,
-        size: Math.random() * 2 + 0.5, // Slightly larger size variation
-        speed: Math.random() * 0.3 + 0.1,
-        brightness: originalBrightness,
-        twinkleSpeed: Math.random() * 0.05 + 0.02, // Different twinkle speeds
-        originalBrightness: originalBrightness,
-        twinkleDirection: Math.random() > 0.5 ? 1 : -1, // Random twinkle direction
+        size: Math.random() * 2.5 + 0.3,
+        brightness: Math.random() * 0.6 + 0.2,
+        twinkleSpeed: Math.random() * 0.03 + 0.005,
+        twinkleDir: Math.random() > 0.5 ? 1 : -1,
+        color: starColors[Math.floor(Math.random() * starColors.length)],
       });
     }
 
-    // Shooting stars
-    const shootingStars: Array<{
-      x: number;
-      y: number;
-      speed: number;
-      length: number;
-      angle: number;
-      active: boolean;
-      opacity: number;
-    }> = [];
+    // Shooting stars array
+    const shootingStars: ShootingStar[] = [];
 
-    // Animation
+    let animId: number;
+
     const animate = () => {
-      // Clear canvas with a darker space background
-      ctx.fillStyle = 'rgba(4, 7, 35, 0.8)'; // Darker background for better star visibility
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw and update static stars with enhanced twinkling
+      // Draw twinkling stars
       stars.forEach(star => {
-        // Enhanced twinkling effect
-        star.brightness += star.twinkleSpeed * star.twinkleDirection;
-        
-        // Reverse direction when reaching limits
-        if (star.brightness >= star.originalBrightness + 0.4) {
-          star.twinkleDirection = -1;
-        } else if (star.brightness <= star.originalBrightness - 0.4) {
-          star.twinkleDirection = 1;
+        // Twinkle effect
+        star.brightness += star.twinkleSpeed * star.twinkleDir;
+        if (star.brightness >= 1) {
+          star.twinkleDir = -1;
+          star.brightness = 1;
+        }
+        if (star.brightness <= 0.1) {
+          star.twinkleDir = 1;
+          star.brightness = 0.1;
         }
 
-        // Ensure brightness stays within bounds
-        star.brightness = Math.max(0.1, Math.min(1, star.brightness));
-
-        // Draw star with glow effect for brighter stars
+        // Draw star core
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
-        
-        // Create a gradient fill for larger, brighter stars
-        if (star.size > 1.5 && star.brightness > 0.7) {
-          const gradient = ctx.createRadialGradient(
-            star.x, star.y, 0,
-            star.x, star.y, star.size * 2
-          );
-          gradient.addColorStop(0, `rgba(255, 255, 255, ${star.brightness})`);
-          gradient.addColorStop(0.5, `rgba(255, 255, 255, ${star.brightness * 0.5})`);
-          gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-          ctx.fillStyle = gradient;
-        } else {
-          ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness})`;
-        }
-        
+        ctx.fillStyle = star.color;
+        ctx.globalAlpha = star.brightness;
         ctx.fill();
 
-        // Add a subtle glow for all stars
-        if (star.brightness > 0.6) {
+        // Draw glow for brighter stars
+        if (star.brightness > 0.6 && star.size > 1) {
           ctx.beginPath();
-          ctx.arc(star.x, star.y, star.size * 1.5, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(255, 255, 255, ${star.brightness * 0.2})`;
+          ctx.arc(star.x, star.y, star.size * 3, 0, Math.PI * 2);
+          const gradient = ctx.createRadialGradient(
+            star.x, star.y, 0,
+            star.x, star.y, star.size * 3
+          );
+          gradient.addColorStop(0, star.color);
+          gradient.addColorStop(1, 'transparent');
+          ctx.fillStyle = gradient;
+          ctx.globalAlpha = star.brightness * 0.3;
           ctx.fill();
         }
 
-        // Slow movement for some stars (parallax effect)
-        if (Math.random() < 0.1) { // Only move some stars
-          star.y += star.speed;
-          if (star.y > canvas.height) {
-            star.y = 0;
-            star.x = Math.random() * canvas.width;
-          }
-        }
+        ctx.globalAlpha = 1;
       });
 
-      // Enhanced shooting stars with better appearance
-      if (Math.random() < 0.001 && shootingStars.length < 2) { // Less frequent
+      // Spawn shooting stars randomly
+      if (Math.random() < 0.008 && shootingStars.length < 3) {
         shootingStars.push({
-          x: Math.random() * canvas.width * 0.8 + canvas.width * 0.1,
-          y: Math.random() * canvas.height * 0.3,
-          speed: Math.random() * 8 + 12,
-          length: Math.random() * 80 + 60,
-          angle: Math.random() * 0.3 + 0.4, // More diagonal angles
-          active: true,
+          x: Math.random() * canvas.width * 0.8,
+          y: Math.random() * canvas.height * 0.4,
+          length: Math.random() * 100 + 50,
+          speed: Math.random() * 15 + 10,
+          angle: Math.random() * 0.5 + 0.3, // Diagonal angle
           opacity: 1,
+          active: true,
         });
       }
 
-      // Update and draw shooting stars with fade effect
+      // Draw and update shooting stars
       shootingStars.forEach((star, index) => {
         if (!star.active) return;
 
-        // Create gradient for shooting star trail
-        const gradient = ctx.createLinearGradient(
-          star.x,
-          star.y,
-          star.x - star.length * Math.cos(star.angle),
-          star.y + star.length * Math.sin(star.angle)
-        );
-        
+        // Create gradient trail
+        const tailX = star.x - Math.cos(star.angle) * star.length;
+        const tailY = star.y + Math.sin(star.angle) * star.length;
+
+        const gradient = ctx.createLinearGradient(star.x, star.y, tailX, tailY);
         gradient.addColorStop(0, `rgba(255, 255, 255, ${star.opacity})`);
-        gradient.addColorStop(0.5, `rgba(200, 220, 255, ${star.opacity * 0.7})`);
-        gradient.addColorStop(1, `rgba(150, 180, 255, 0)`);
+        gradient.addColorStop(0.3, `rgba(0, 229, 199, ${star.opacity * 0.6})`);
+        gradient.addColorStop(1, 'transparent');
 
         ctx.beginPath();
         ctx.moveTo(star.x, star.y);
-        ctx.lineTo(
-          star.x - star.length * Math.cos(star.angle),
-          star.y + star.length * Math.sin(star.angle)
-        );
+        ctx.lineTo(tailX, tailY);
         ctx.strokeStyle = gradient;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
         ctx.stroke();
 
-        // Add a bright head to the shooting star
+        // Bright head
         ctx.beginPath();
-        ctx.arc(star.x, star.y, 2, 0, Math.PI * 2);
+        ctx.arc(star.x, star.y, 2.5, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
         ctx.fill();
 
-        // Update position and opacity
-        star.x += star.speed * Math.cos(star.angle);
-        star.y += star.speed * Math.sin(star.angle);
-        star.opacity -= 0.02;
+        // Glow around head
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, 6, 0, Math.PI * 2);
+        const headGlow = ctx.createRadialGradient(star.x, star.y, 0, star.x, star.y, 6);
+        headGlow.addColorStop(0, `rgba(0, 229, 199, ${star.opacity * 0.5})`);
+        headGlow.addColorStop(1, 'transparent');
+        ctx.fillStyle = headGlow;
+        ctx.fill();
 
-        // Remove when faded out or off screen
-        if (star.opacity <= 0 || star.x > canvas.width || star.y > canvas.height) {
+        // Update position
+        star.x += Math.cos(star.angle) * star.speed;
+        star.y += Math.sin(star.angle) * star.speed;
+        star.opacity -= 0.012;
+
+        // Remove when done
+        if (star.opacity <= 0 || star.x > canvas.width + 100 || star.y > canvas.height + 100) {
           shootingStars.splice(index, 1);
         }
       });
 
-      // Add occasional star bursts (rare events)
-      if (Math.random() < 0.0005) {
-        // Create a small burst of stars
-        for (let i = 0; i < 5; i++) {
-          const burstX = Math.random() * canvas.width;
-          const burstY = Math.random() * canvas.height;
-          
-          ctx.beginPath();
-          ctx.arc(burstX, burstY, 1, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-          ctx.fill();
-        }
-      }
-
-      requestAnimationFrame(animate);
+      animId = requestAnimationFrame(animate);
     };
 
     animate();
 
     return () => {
-      window.removeEventListener('resize', resizeCanvas);
+      window.removeEventListener('resize', resize);
+      cancelAnimationFrame(animId);
     };
   }, []);
 
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-0"
-      style={{ 
-        background: 'linear-gradient(180deg, #040723 0%, #0a0f2b 50%, #040723 100%)'
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1,
+        pointerEvents: 'none',
       }}
     />
   );

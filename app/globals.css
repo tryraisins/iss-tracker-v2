@@ -1,31 +1,662 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Space+Mono:wght@400;700&display=swap");
 @import "tailwindcss";
 
+/* ========================================
+   CELESTIAL OBSERVATORY - DARK THEME
+   An Abstract Space Experience
+   ======================================== */
+
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  /* Dark Theme - "Deep Void" */
+  --bg-void: #050508;
+  --bg-nebula: #0a0a10;
+  --bg-stardust: #12121a;
+  --bg-glass: rgba(10, 10, 16, 0.75);
+
+  --text-primary: #f5f0eb;
+  --text-secondary: #b8b0a5;
+  --text-muted: #6a6560;
+
+  --accent-aurora: #ff8c5a;
+  --accent-cosmic: #00e5c7;
+  --accent-nebula: #bf6eff;
+  --accent-glow: rgba(0, 229, 199, 0.3);
+
+  --border-subtle: rgba(245, 240, 235, 0.06);
+  --border-glow: rgba(0, 229, 199, 0.25);
+
+  --gradient-aurora: linear-gradient(135deg, #ff8c5a 0%, #ff6b35 100%);
+  --gradient-cosmic: linear-gradient(135deg, #00e5c7 0%, #00b4a0 100%);
+
+  --shadow-float: 0 20px 60px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 100px rgba(0, 229, 199, 0.15);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  font-family: "DM Sans", sans-serif;
+  background: var(--bg-void);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
+/* Typography */
+.font-display {
+  font-family: "Orbitron", sans-serif;
+  letter-spacing: 0.05em;
+}
+
+.font-mono {
+  font-family: "Space Mono", monospace;
+}
+
+/* ========================================
+   ABSTRACT BACKGROUND LAYERS
+   ======================================== */
+
+.void-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Organic blob shapes */
+.cosmic-blob {
+  position: absolute;
+  border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+  filter: blur(80px);
+  opacity: 0.35;
+  animation: morphBlob 25s ease-in-out infinite;
+}
+
+.blob-1 {
+  width: 600px;
+  height: 600px;
+  background: var(--accent-aurora);
+  top: -200px;
+  right: -100px;
+  animation-delay: 0s;
+}
+
+.blob-2 {
+  width: 500px;
+  height: 500px;
+  background: var(--accent-cosmic);
+  bottom: -150px;
+  left: -100px;
+  animation-delay: -8s;
+}
+
+.blob-3 {
+  width: 400px;
+  height: 400px;
+  background: var(--accent-nebula);
+  top: 40%;
+  left: 50%;
+  animation-delay: -16s;
+}
+
+@keyframes morphBlob {
+  0%,
+  100% {
+    border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    border-radius: 70% 30% 50% 50% / 30% 70% 30% 70%;
+    transform: translate(20px, -30px) rotate(45deg);
+  }
+  50% {
+    border-radius: 50% 50% 30% 70% / 60% 40% 60% 40%;
+    transform: translate(-20px, 20px) rotate(90deg);
+  }
+  75% {
+    border-radius: 30% 70% 60% 40% / 50% 60% 40% 60%;
+    transform: translate(15px, 15px) rotate(135deg);
+  }
+}
+
+/* Grain texture overlay */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+}
+
+/* ========================================
+   FLOATING GLASS NAVBAR
+   ======================================== */
+
+.glass-nav {
+  padding: 14px 32px;
+  background: var(--bg-glass);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--border-subtle);
+  border-radius: 100px;
+  box-shadow: var(--shadow-float);
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-nav:hover {
+  box-shadow: var(--shadow-float), var(--shadow-glow);
+  border-color: var(--border-glow);
+}
+
+.nav-brand {
+  font-family: "Orbitron", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.3s ease;
+}
+
+.nav-brand-marker {
+  width: 10px;
+  height: 10px;
+  background: var(--gradient-cosmic);
+  border-radius: 50%;
+  animation: pulse-marker 2s ease-in-out infinite;
+}
+
+@keyframes pulse-marker {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.7;
+  }
+}
+
+.nav-links {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-link {
+  padding: 10px 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  text-decoration: none;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.nav-link:hover {
+  color: var(--text-primary);
+  background: var(--border-subtle);
+}
+
+.nav-link.active {
+  background: var(--gradient-cosmic);
+  color: #050508;
+  font-weight: 600;
+}
+
+.nav-back {
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent-cosmic);
+  text-decoration: none;
+  border-radius: 50px;
+  border: 1px solid var(--border-glow);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-back:hover {
+  background: rgba(0, 229, 199, 0.1);
+  transform: translateX(-4px);
+}
+
+/* ========================================
+   OBSERVATORY CARDS
+   ======================================== */
+
+.obs-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--border-subtle);
+  border-radius: 32px;
+  padding: 32px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.obs-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-cosmic);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease;
+}
+
+.obs-card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-float), var(--shadow-glow);
+  border-color: var(--border-glow);
+}
+
+.obs-card:hover::before {
+  transform: scaleX(1);
+}
+
+/* ========================================
+   STAGGERED ANIMATIONS
+   ======================================== */
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeSlideLeft {
+  from {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.anim-fade-up {
+  animation: fadeSlideUp 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+}
+
+.anim-fade-left {
+  animation: fadeSlideLeft 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+}
+
+.anim-scale-in {
+  animation: scaleIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 0;
+}
+
+.delay-1 {
+  animation-delay: 0.1s;
+}
+.delay-2 {
+  animation-delay: 0.2s;
+}
+.delay-3 {
+  animation-delay: 0.3s;
+}
+.delay-4 {
+  animation-delay: 0.4s;
+}
+.delay-5 {
+  animation-delay: 0.5s;
+}
+.delay-6 {
+  animation-delay: 0.6s;
+}
+.delay-7 {
+  animation-delay: 0.7s;
+}
+.delay-8 {
+  animation-delay: 0.8s;
+}
+
+/* ========================================
+   DATA VISUALIZATION
+   ======================================== */
+
+.data-metric {
+  text-align: center;
+  padding: 24px;
+  background: var(--bg-nebula);
+  border-radius: 20px;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.3s ease;
+}
+
+.data-metric:hover {
+  border-color: var(--accent-cosmic);
+  transform: translateY(-4px);
+}
+
+.metric-value {
+  font-family: "Space Mono", monospace;
+  font-size: 2rem;
+  font-weight: 700;
+  background: var(--gradient-cosmic);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* ========================================
+   CREW ROSTER
+   ======================================== */
+
+.crew-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--bg-nebula);
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: default;
+}
+
+.crew-item:hover {
+  background: var(--bg-stardust);
+  transform: translateX(12px);
+  border-color: var(--accent-aurora);
+}
+
+.crew-avatar {
+  width: 48px;
+  height: 48px;
+  background: var(--gradient-aurora);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: #050508;
+  flex-shrink: 0;
+}
+
+.crew-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.crew-status {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--accent-cosmic);
+  border-radius: 50%;
+  animation: pulse-marker 2s infinite;
+}
+
+/* ========================================
+   3D GLOBE CONTAINER
+   ======================================== */
+
+.globe-container {
+  width: 100%;
+  height: 400px;
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--bg-nebula);
+  border: 1px solid var(--border-subtle);
+}
+
+.globe-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.globe-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    circle at center,
+    transparent 40%,
+    var(--bg-void) 100%
+  );
+}
+
+/* ========================================
+   CTA BUTTONS
+   ======================================== */
+
+.cta-btn {
+  font-family: "Orbitron", sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  padding: 16px 32px;
+  border-radius: 50px;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-primary {
+  background: var(--gradient-cosmic);
+  color: #050508;
+}
+
+.cta-primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 180, 160, 0.3);
+}
+
+.cta-secondary {
+  background: transparent;
+  color: var(--text-primary);
+  border: 2px solid var(--border-subtle);
+}
+
+.cta-secondary:hover {
+  border-color: var(--accent-aurora);
+  color: var(--accent-aurora);
+}
+
+/* ========================================
+   TRIVIA STYLING
+   ======================================== */
+
+.trivia-option {
+  width: 100%;
+  text-align: left;
+  padding: 20px 24px;
+  background: var(--bg-nebula);
+  border: 2px solid var(--border-subtle);
+  border-radius: 16px;
+  font-family: "DM Sans", sans-serif;
+  font-weight: 500;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.trivia-option:hover:not(:disabled) {
+  border-color: var(--accent-cosmic);
+  background: var(--bg-stardust);
+  transform: translateX(8px);
+}
+
+.trivia-option.correct {
+  border-color: var(--accent-cosmic);
+  background: rgba(0, 180, 160, 0.1);
+}
+
+.trivia-option.incorrect {
+  border-color: var(--accent-aurora);
+  background: rgba(255, 107, 53, 0.1);
+}
+
+/* ========================================
+   SCROLLBAR
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-nebula);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-cosmic);
+  border-radius: 4px;
+}
+
+/* ========================================
+   MOBILE RESPONSIVE
+   ======================================== */
+
+@media (max-width: 768px) {
+  .glass-nav {
+    width: calc(100% - 32px);
+    padding: 12px 20px;
+    gap: 16px;
+  }
+
+  .nav-links {
+    display: none;
+  }
+
+  .nav-links.open {
+    display: flex;
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    background: var(--bg-glass);
+    backdrop-filter: blur(24px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 24px;
+    padding: 16px;
+  }
+
+  .obs-card {
+    padding: 24px;
+    border-radius: 24px;
+  }
+
+  .metric-value {
+    font-size: 1.5rem;
+  }
+}
+
+/* ========================================
+   UTILITIES
+   ======================================== */
+
+.gradient-text {
+  background: var(--gradient-cosmic);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-aurora {
+  background: var(--gradient-aurora);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Floating animation */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Orbit ring decoration */
+.orbit-ring {
+  border: 1px dashed var(--border-subtle);
+  border-radius: 50%;
+  position: absolute;
+  animation: spin-slow 60s linear infinite;
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
